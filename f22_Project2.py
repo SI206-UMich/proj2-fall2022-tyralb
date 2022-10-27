@@ -1,10 +1,8 @@
-from xml.sax import parseString
 from bs4 import BeautifulSoup
 import re
 import os
 import csv
 import unittest
-
 
 def get_listings_from_search_results(html_file):
     """
@@ -18,16 +16,46 @@ def get_listings_from_search_results(html_file):
     The listing id is found in the url of a listing. For example, for
         https://www.airbnb.com/rooms/1944564
     the listing id is 1944564.
-.
 
     [
         ('Title of Listing 1', 'Cost 1', 'Listing ID 1'),  # format
         ('Loft in Mission District', 210, '1944564'),  # example
     ]
     """
-    pass
+    #load the file data from the variable html_file into BeautifulSoup. 
+    fh = open(html_file)
+    soup = BeautifulSoup(fh, 'html.parser')
+    fh.close()
 
+    listings = soup.find_all('div', class_='t1jojoys dir dir-ltr')
+    name_list = [name.text for name in listings]
 
+    cost_per_night = soup.find_all('span', class_='_tyxjp1')
+    cost_list_string = [cost.text for cost in cost_per_night]
+
+    cost_list =[]
+    for cost in cost_list_string:
+        cost_int = cost.strip("$ ")
+        cost_list.append(int(cost_int))
+    
+    list_ids = soup.find_all('a', class_ ="ln2bl2p dir dir-ltr")
+    id_list = []
+    
+    for x in list_ids:
+        link = x.get('href',None)
+        reg_ex = r'\w.(\d+\d)\?'
+        tags = re.findall(reg_ex,link)
+        id_list.extend(tags)
+
+    info_list = []
+    for i in range(len(listings)):
+        info = (name_list[i], cost_list[i], id_list[i])
+        info_list.append(info)
+    
+    print(info_list)
+    return info_list
+    
+    
 def get_listing_information(listing_id):
     """
     Write a function to return relevant information in a tuple from an Airbnb listing id.
@@ -52,8 +80,15 @@ def get_listing_information(listing_id):
         number of bedrooms
     )
     """
-    pass
 
+    file_name = "listing_" + listing_id
+    # string concatenation "listing_ + id number string then call beautiful soup object thing
+
+    # policy number string or pending or exempt
+    # ?????? = soup.find_all('li', class_ ="f19phm7j dir dir-ltr")
+    # class="f19phm7j dir dir-ltr"
+    # string place type: place_type = soup.find_all()
+    # bedroom_num = soup.find_all()
 
 def get_detailed_listing_database(html_file):
     """
