@@ -52,7 +52,6 @@ def get_listings_from_search_results(html_file):
         info = (name_list[i], cost_list[i], id_list[i])
         info_list.append(info)
     
-    print(info_list)
     return info_list
     
     
@@ -80,15 +79,30 @@ def get_listing_information(listing_id):
         number of bedrooms
     )
     """
+    listing_id = "1623609"
+    # take this out when you finish the function lol
+    file_name = "html_files/listing_"+ listing_id + ".html"
+    
+    fh = open(file_name)
+    soup = BeautifulSoup(fh, 'html.parser')
+    fh.close()
 
-    file_name = "listing_" + listing_id
-    # string concatenation "listing_ + id number string then call beautiful soup object thing
+    policy_status = soup.find("li", class_="f19phm7j dir dir-ltr")
+    reg_ex = r'^Policy number: (\w+.+)'
+    policy_num = re.findall(reg_ex,policy_status.text)
+    # except i dont want it to find all!!!!!!!!
 
-    # policy number string or pending or exempt
-    # ?????? = soup.find_all('li', class_ ="f19phm7j dir dir-ltr")
-    # class="f19phm7j dir dir-ltr"
+    place_type = soup.find()
+
+    # print(policy_num)
+    # if "pending" in policy_num:
+    #     policy_num = "pending"
+
+    print(policy_num)
+
     # string place type: place_type = soup.find_all()
-    # bedroom_num = soup.find_all()
+    # bedroom_num = soup.find(li, class="l7n4lsf dir dir-ltr")
+    # class="pen26si dir dir-ltr"
 
 def get_detailed_listing_database(html_file):
     """
