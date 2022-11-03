@@ -79,30 +79,44 @@ def get_listing_information(listing_id):
         number of bedrooms
     )
     """
-    listing_id = "1623609"
-    # take this out when you finish the function lol
     file_name = "html_files/listing_"+ listing_id + ".html"
     
     fh = open(file_name)
     soup = BeautifulSoup(fh, 'html.parser')
     fh.close()
 
-    policy_status = soup.find("li", class_="f19phm7j dir dir-ltr")
-    reg_ex = r'^Policy number: (\w+.+)'
-    policy_num = re.findall(reg_ex,policy_status.text)
-    # except i dont want it to find all!!!!!!!!
+    li_tags = soup.find("li", class_="f19phm7j dir dir-ltr")
+    policy = li_tags.find("span", class_="ll4r2nl dir dir-ltr").text
+    
+    if "pending" in policy.lower:
+        policy = "Pending"
+    elif "exempt" in policy.lower or "not needed" in policy.lower:
+        policy = "Exempt"
+        
+    div_tags = soup.find("div", class_="_cv5qq4")
+    place_subtitle = div_tags.find("h2", class_= "_14i3z6h").text
 
-    place_type = soup.find()
+    if "private" in place_subtitle.lower():
+        place_type = "Private Room"
+    elif "shared" in place_subtitle.lower():
+        place_type = "Shared Room"
+    else:
+        place_type = "Entire Room"
+    
+    li_list= soup.find_all("li", class_="l7n4lsf dir dir-ltr")
+    span_list = li_list[1].find_all("span")
+    bedroom_num = span_list[2].text
+    
+    bedroom_num_int = int(bedroom_num[0])
 
-    # print(policy_num)
-    # if "pending" in policy_num:
-    #     policy_num = "pending"
+    if "studio" in bedroom_num.lower():
+        bedroom_num_int = 1
 
-    print(policy_num)
+    listing_info_tuple = (policy, place_type, bedroom_num_int)
 
-    # string place type: place_type = soup.find_all()
-    # bedroom_num = soup.find(li, class="l7n4lsf dir dir-ltr")
-    # class="pen26si dir dir-ltr"
+    print(listing_info_tuple)
+
+    # return(listing_info_tuple)
 
 def get_detailed_listing_database(html_file):
     """
@@ -288,7 +302,9 @@ class TestCases(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    get_listings_from_search_results("html_files/mission_district_search_results.html")
+    get_listing_information('1623609')
     database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     write_csv(database, "airbnb_dataset.csv")
     check_policy_numbers(database)
-    unittest.main(verbosity=2)
+    # unittest.main(verbosity=2)
