@@ -52,6 +52,7 @@ def get_listings_from_search_results(html_file):
         info = (name_list[i], cost_list[i], id_list[i])
         info_list.append(info)
     
+    # print(info_list)
     return info_list
     
     
@@ -88,9 +89,9 @@ def get_listing_information(listing_id):
     li_tags = soup.find("li", class_="f19phm7j dir dir-ltr")
     policy = li_tags.find("span", class_="ll4r2nl dir dir-ltr").text
     
-    if "pending" in policy.lower:
+    if "pending" in policy.lower():
         policy = "Pending"
-    elif "exempt" in policy.lower or "not needed" in policy.lower:
+    elif "exempt" in policy.lower() or "not needed" in policy.lower():
         policy = "Exempt"
         
     div_tags = soup.find("div", class_="_cv5qq4")
@@ -107,16 +108,16 @@ def get_listing_information(listing_id):
     span_list = li_list[1].find_all("span")
     bedroom_num = span_list[2].text
     
-    bedroom_num_int = int(bedroom_num[0])
-
     if "studio" in bedroom_num.lower():
         bedroom_num_int = 1
+    else:
+        bedroom_num_int = int(bedroom_num[0])
+
 
     listing_info_tuple = (policy, place_type, bedroom_num_int)
 
-    print(listing_info_tuple)
-
-    # return(listing_info_tuple)
+    # print(listing_info_tuple)
+    return(listing_info_tuple)
 
 def get_detailed_listing_database(html_file):
     """
@@ -125,14 +126,23 @@ def get_detailed_listing_database(html_file):
     This function takes in a variable representing the location of the search results html file.
     The return value should be in this format:
 
-
     [
         (Listing Title 1,Cost 1,Listing ID 1,Policy Number 1,Place Type 1,Number of Bedrooms 1),
         (Listing Title 2,Cost 2,Listing ID 2,Policy Number 2,Place Type 2,Number of Bedrooms 2),
         ...
     ]
     """
-    pass
+    search_results = get_listings_from_search_results(html_file)
+    detailed_info= []
+    for listing in search_results:
+        listing_id = listing[2]
+        listing_info = get_listing_information(listing_id)
+        detailed_info.append(listing + listing_info)
+
+    # print (detailed_info)
+    return detailed_info
+    
+    
 
 
 def write_csv(data, filename):
@@ -302,8 +312,8 @@ class TestCases(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    get_listings_from_search_results("html_files/mission_district_search_results.html")
-    get_listing_information('1623609')
+    # get_listings_from_search_results("html_files/mission_district_search_results.html")
+    # get_listing_information('51106622')
     database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     write_csv(database, "airbnb_dataset.csv")
     check_policy_numbers(database)
