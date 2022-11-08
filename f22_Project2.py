@@ -1,3 +1,8 @@
+# Your name: Tyra Briscoe
+# Your student id: 84335544
+# Your email: tyralb@umich.edu
+# List who you have worked with on this project:
+
 from bs4 import BeautifulSoup
 import re
 import os
@@ -142,8 +147,6 @@ def get_detailed_listing_database(html_file):
     # print (detailed_info)
     return detailed_info
     
-    
-
 
 def write_csv(data, filename):
     """
@@ -167,8 +170,14 @@ def write_csv(data, filename):
 
     This function should not return anything.
     """
-    pass
 
+    data_sorted = sorted(data, key= lambda t : t[1])
+    # sort in ascending order by cost
+    with open(filename, "w", newline = "") as hand:
+        data_writer = csv.writer(hand)
+        data_writer.writerow(['Listing Title','Cost','Listing ID','Policy Number','Place Type','Number of Bedrooms'])
+        for item in data_sorted:
+            data_writer.writerow(item)
 
 def check_policy_numbers(data):
     """
@@ -187,10 +196,17 @@ def check_policy_numbers(data):
         listing id 2,
         ...
     ]
-
     """
-    pass
+    reg_ex = r'20\d{2}-00\d{4}STR|STR-000\d{4}'
+    invalid_policy_num = []
 
+    for listing in data:
+        policy_num = listing[3]
+        if policy_num!= "Pending" and policy_num != "Exempt":
+            if not re.search(reg_ex, policy_num):
+                invalid_policy_num.append(listing[2])
+
+    return invalid_policy_num
 
 def extra_credit(listing_id):
     """
@@ -220,11 +236,11 @@ class TestCases(unittest.TestCase):
         # check that the variable you saved after calling the function is a list
         self.assertEqual(type(listings), list)
         # check that each item in the list is a tuple
-
+        self.assertEqual(type(listings), tuple)
         # check that the first title, cost, and listing id tuple is correct (open the search results html and find it)
 
         # check that the last title is correct (open the search results html and find it)
-        pass
+        
 
     def test_get_listing_information(self):
         html_list = ["1623609",
@@ -317,4 +333,5 @@ if __name__ == '__main__':
     database = get_detailed_listing_database("html_files/mission_district_search_results.html")
     write_csv(database, "airbnb_dataset.csv")
     check_policy_numbers(database)
+
     # unittest.main(verbosity=2)
